@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#111d20">
-<title>Emberwatch v0.12 — Campaign & Progression</title>
+<title>Emberwatch v0.12.1 — Campaign & Progression</title>
 <style>
 :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;padding:12px;background:#10191c;color:#f5ecd4;font:14px system-ui,sans-serif}
 #game{max-width:920px;margin:auto;background:#111d20;border:1px solid #53645c;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:9px}
@@ -22,7 +22,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:8px}h1{
 </head>
 <body>
 <main id="game">
-<header><div><h1>🔥 EMBERWATCH <span class="gold" style="font-size:13px">v0.12</span></h1><div class="muted">CAMPAIGN & PROGRESSION</div></div><div class="muted" style="text-align:right">COMMANDER<br><b id="medals" class="gold" style="font-size:15px">0</b> medals</div></header>
+<header><div><h1>🔥 EMBERWATCH <span class="gold" style="font-size:13px">v0.12.1</span></h1><div class="muted">CAMPAIGN & PROGRESSION</div></div><div class="muted" style="text-align:right">COMMANDER<br><b id="medals" class="gold" style="font-size:15px">0</b> medals</div></header>
 <section id="campaign" class="panel">
  <b>WORLD MAP · SELECT A MISSION</b>
  <div class="grid three" style="margin-top:8px">
@@ -48,7 +48,7 @@ header{display:flex;justify-content:space-between;align-items:center;gap:8px}h1{
 </main>
 <script>
 (()=>{
-const $=id=>document.getElementById(id),canvas=$('field'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id),canvas=$('field'),g=canvas.getContext('2d');
 const missions=[
 {name:'Green Pass',desc:'Defend the woodland pass from the Ashen Legion.',theme:0,waves:8,reward:2},
 {name:'Ashen River',desc:'A river crossing under siege. Swift raiders and armoured brutes attack in greater numbers.',theme:1,waves:9,reward:3},
