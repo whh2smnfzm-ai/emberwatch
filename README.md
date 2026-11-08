@@ -1,4 +1,4 @@
-# Emberwatch: The Shattered Pass — v0.12
+# Emberwatch: The Shattered Pass — v0.12.1
 
 A self-contained browser tower-defence prototype. This is an original project and does not include Kingdom Rush assets or branding.
 
@@ -28,4 +28,8 @@ A self-contained browser tower-defence prototype. This is an original project an
 - This is a prototype, not an App Store release.
 
 ## Version
-`0.12.0`
+`0.12.1`
+
+
+## v0.12.1 hotfix
+- Fixed the canvas rendering context variable mismatch (`ctx` vs `g`) that stopped the animation loop on the first frame. The battlefield now renders continuously so wave spawns, enemy movement, tower attacks, and hero combat can update.
