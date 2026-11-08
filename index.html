@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#111d20">
+<title>Emberwatch v0.12 — Campaign & Progression</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;padding:12px;background:#10191c;color:#f5ecd4;font:14px system-ui,sans-serif}
+#game{max-width:920px;margin:auto;background:#111d20;border:1px solid #53645c;border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:9px}
+button{background:#2b4141;border:1px solid #60756b;color:#f5e9c9;border-radius:8px;padding:9px 7px;font-size:12px;font-weight:700;cursor:pointer;touch-action:manipulation}
+button.active{background:#9a682e;border-color:#f3c66d}button:disabled{opacity:.35;cursor:not-allowed}
+.muted{font-size:11px;color:#b0c0b7}.gold{color:#f5ce74}.panel{background:#1d2d30;border:1px solid #465c59;border-radius:10px;padding:9px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.stat{background:#26383a;padding:6px 3px;text-align:center;border-radius:8px;color:#c5d0c7;font-size:10px}.stat b{display:block;font-size:17px;color:#fff}
+canvas{width:100%;aspect-ratio:1.65;display:block;border-radius:10px;border:1px solid #68786a;touch-action:manipulation}
+.grid{display:grid;gap:7px}.four{grid-template-columns:repeat(4,1fr)}.three{grid-template-columns:repeat(3,1fr)}
+.bar{height:8px;background:#394b4b;border-radius:10px;overflow:hidden}.bar>div{height:100%;background:#e9bd57;width:0}
+#arena{position:relative}#banner{position:absolute;top:34%;left:3%;right:3%;background:#090e0ee8;border:1px solid #e3bf65;border-radius:12px;padding:13px;text-align:center;font-size:19px;font-weight:900;color:#ffdf91}
+header{display:flex;justify-content:space-between;align-items:center;gap:8px}h1{font-size:19px;margin:0;font-weight:950;letter-spacing:.04em}
+@media(max-width:440px){body{padding:4px}#game{padding:7px;gap:7px}button{font-size:10px;padding:8px 3px}.stat b{font-size:15px}}
+</style>
+</head>
+<body>
+<main id="game">
+<header><div><h1>🔥 EMBERWATCH <span class="gold" style="font-size:13px">v0.12</span></h1><div class="muted">CAMPAIGN & PROGRESSION</div></div><div class="muted" style="text-align:right">COMMANDER<br><b id="medals" class="gold" style="font-size:15px">0</b> medals</div></header>
+<section id="campaign" class="panel">
+ <b>WORLD MAP · SELECT A MISSION</b>
+ <div class="grid three" style="margin-top:8px">
+  <button class="mission active" data-m="0">🌲 Green Pass<br><span class="muted">Mission 01</span></button>
+  <button class="mission" data-m="1">🌊 Ashen River<br><span class="muted">Mission 02</span></button>
+  <button class="mission" data-m="2">❄ Frostfall Keep<br><span class="muted">Mission 03</span></button>
+ </div>
+ <div class="muted" id="missionDesc" style="margin-top:8px">Defend the old woodland pass from the Ashen Legion.</div>
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px"><span class="muted" id="unlockText">First mission available</span><button id="launch" class="active">Enter Mission ▶</button></div>
+</section>
+<section class="stats"><div class="stat">GOLD<b id="gold">180</b></div><div class="stat">LIVES<b id="lives">20</b></div><div class="stat">WAVE<b id="wave">0/8</b></div><div class="stat">KILLS<b id="kills">0</b></div></section>
+<div style="display:flex;justify-content:space-between"><b id="status" class="gold">Choose your mission</b><span id="stage" class="muted">Green Pass</span></div>
+<div class="bar"><div id="progress"></div></div>
+<div id="arena"><canvas id="field" width="760" height="460" aria-label="Tower defence battlefield"></canvas><div id="banner" hidden></div></div>
+<div class="grid four">
+ <button data-t="Archer">🏹 Archer<br><span class="muted">70g</span></button><button data-t="Mage">🔮 Mage<br><span class="muted">100g</span></button><button data-t="Cannon">💣 Cannon<br><span class="muted">125g</span></button><button data-t="Barracks">🛡 Barracks<br><span class="muted">90g</span></button>
+</div>
+<div class="grid four"><button id="start" class="active">▶ Wave</button><button id="skill">⚔ Hero Skill</button><button id="meteor">☄ Meteor</button><button id="pause">Ⅱ Pause</button></div>
+<div class="grid three"><button id="speed">Speed 1×</button><button id="retry">↻ Retry</button><button id="map">World Map</button></div>
+<section class="panel"><div style="display:flex;justify-content:space-between;gap:8px"><b id="inspect">Battlefield</b><span id="heroCD" class="gold muted">Hero ready</span></div><div id="detail" class="muted" style="margin-top:5px">Select a tower type, then tap a build site. Upgrade towers to unlock specialisation.</div><div class="grid three" style="margin-top:8px"><button id="upgrade" disabled>⬆ Upgrade</button><button id="branch" disabled>✦ Specialise</button><button id="sell" disabled>Sell</button></div></section>
+<section class="panel"><div style="display:flex;justify-content:space-between"><b>Hero Training</b><span id="heroLevel" class="gold">Level 1</span></div><div id="heroDesc" class="muted" style="margin-top:5px">Spend medals earned from victories to improve your hero.</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span id="heroCost" class="muted">Next training: 2 medals</span><button id="train">Train Hero</button></div></section>
+<div class="muted" style="text-align:center">Progress is saved in this browser on this device. Clearing browser data may erase it.</div>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id),canvas=$('field'),ctx=canvas.getContext('2d');
+const missions=[
+{name:'Green Pass',desc:'Defend the woodland pass from the Ashen Legion.',theme:0,waves:8,reward:2},
+{name:'Ashen River',desc:'A river crossing under siege. Swift raiders and armoured brutes attack in greater numbers.',theme:1,waves:9,reward:3},
+{name:'Frostfall Keep',desc:'The frozen fortress is guarded by the Legion’s strongest war beasts.',theme:2,waves:10,reward:4}
+];
+const costs={Archer:70,Mage:100,Cannon:125,Barracks:90},base={Archer:[17,130],Mage:[26,145],Cannon:[48,115],Barracks:[12,58]};
+const paths=[
+[[-15,280],[105,280],[175,180],[280,180],[365,300],[475,300],[565,185],[660,185],[780,260]],
+[[-15,335],[110,335],[190,230],[285,230],[365,330],[475,330],[560,215],[660,215],[780,300]],
+[[-15,260],[100,260],[180,160],[290,160],[365,280],[475,280],[570,160],[665,160],[780,235]]
+],pads=[[90,205],[220,115],[300,350],[430,225],[520,375],[615,115],[690,320]];
+let save={unlocked:0,medals:0,heroLevel:1,completed:[]};try{save={...save,...JSON.parse(localStorage.getItem('emberwatch_v12_save')||'{}')}}catch(e){}
+let mission=0,gold,lives,wave,kills,towers,enemies,shots,fx,hero,selected,build,running,paused,gameOver,speed,spawn,spawnClock,heroCD,meteorCD,elapsed,bannerEnd,won,last=0;
+function persist(){try{localStorage.setItem('emberwatch_v12_save',JSON.stringify(save))}catch(e){}}
+function showBanner(s){$('banner').textContent=s;$('banner').hidden=false;bannerEnd=elapsed+2.1}
+function updateMap(){
+$('medals').textContent=save.medals;
+document.querySelectorAll('.mission').forEach((b,i)=>{b.disabled=i>save.unlocked;b.classList.toggle('active',i===mission);b.innerHTML=['🌲 Green Pass','🌊 Ashen River','❄ Frostfall Keep'][i]+'<br><span class="muted">'+(i<=save.unlocked?'Mission 0'+(i+1):'🔒 Locked')+'</span>'});
+$('missionDesc').textContent=missions[mission].desc;$('unlockText').textContent=mission<=save.unlocked?'Mission available':'Complete the previous mission to unlock';$('launch').disabled=mission>save.unlocked;
+$('heroLevel').textContent='Level '+save.heroLevel;$('heroCost').textContent='Next training: '+(save.heroLevel+1)+' medals';$('train').disabled=save.medals<save.heroLevel+1||save.heroLevel>=5;
+$('heroDesc').textContent='Hero damage and health increase with each training level. Current bonus: +'+((save.heroLevel-1)*8)+' damage.';
+}
+function resetBattle(){gold=180;lives=mission===2?18:20;wave=0;kills=0;towers=[];enemies=[];shots=[];fx=[];hero={x:90,y:365,hp:160+(save.heroLevel-1)*25,max:160+(save.heroLevel-1)*25,attack:0};selected=null;build=null;running=false;paused=false;gameOver=false;speed=1;spawn=0;spawnClock=0;heroCD=0;meteorCD=0;elapsed=0;won=false;showBanner(missions[mission].name.toUpperCase());updateUI()}
+function updateUI(){
+$('gold').textContent=gold;$('lives').textContent=lives;$('wave').textContent=wave+'/'+missions[mission].waves;$('kills').textContent=kills;$('stage').textContent=missions[mission].name;
+$('status').textContent=won?'MISSION COMPLETE':gameOver?'KEEP FALLEN':paused?'Paused':running?'Defend the keep':wave===0?'Ready to deploy':'Wave cleared';
+$('progress').style.width=(wave/missions[mission].waves*100)+'%';$('pause').textContent=paused?'▶ Continue':'Ⅱ Pause';$('speed').textContent='Speed '+speed+'×';$('heroCD').textContent=heroCD>0?'Skill '+heroCD.toFixed(1)+'s':'Hero ready';
+let t=selected&&selected.pad===undefined?selected:null;$('inspect').textContent=t?t.type+' · Level '+t.level:'Battlefield';
+$('detail').textContent=t?'Damage '+Math.round(t.damage)+' · Range '+Math.round(t.range)+(t.branch?' · '+t.branch:'')+'.':'Select a tower type, then tap a build site. Upgrade towers to unlock specialisation.';
+$('upgrade').disabled=!t||t.level>=3||gold<Math.round(costs[t.type]*.8);$('branch').disabled=!t||t.level<2||!!t.branch;$('sell').disabled=!t;
+document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('active',b.dataset.t===build));
+}
+function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function route(){return paths[mission]}function pathLength(){return route().slice(1).reduce((s,p,i)=>s+Math.hypot(p[0]-route()[i][0],p[1]-route()[i][1]),0)}
+function posAt(d){let p=route();for(let i=0;i<p.length-1;i++){let a=p[i],b=p[i+1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);if(d<=l){let f=d/l;return{x:a[0]+(b[0]-a[0])*f,y:a[1]+(b[1]-a[1])*f}}d-=l}return{x:780,y:260}}
+function particles(x,y,n,col){for(let i=0;i<n;i++)fx.push({x,y,vx:(Math.random()-.5)*130,vy:(Math.random()-.5)*130,life:.35+Math.random()*.55,col})}
+function spawnEnemy(){let type=wave>=3&&Math.random()<.24?'armour':wave>=2&&Math.random()<.25?'runner':'grunt';if(wave%5===0&&spawn===1)type='boss';let scale=1+mission*.32+wave*.12,hp=type==='boss'?480*scale:type==='armour'?110*scale:type==='runner'?38*scale:58*scale,p=posAt(0);enemies.push({x:p.x,y:p.y,progress:0,type,hp,max:hp,speed:type==='runner'?76:type==='boss'?22:type==='armour'?27:39,r:type==='boss'?24:type==='armour'?14:10})}
+function kill(e,damage){e.hp-=damage;particles(e.x,e.y,4,e.type==='boss'?'#ff9a55':'#efce8b');if(e.hp<=0){gold+=e.type==='boss'?90:e.type==='armour'?20:12;kills++;particles(e.x,e.y,e.type==='boss'?28:12,'#ffb65c');enemies=enemies.filter(x=>x!==e);if(e.type==='boss')showBanner('BOSS DEFEATED · +90 GOLD')}}
+function launch(){if(running||gameOver||won||wave>=missions[mission].waves)return;wave++;running=true;spawn=4+wave*2;spawnClock=.1;showBanner(wave%5===0?'⚠ BOSS INCOMING':'WAVE '+wave);updateUI()}
+function update(dt){
+elapsed+=dt;heroCD=Math.max(0,heroCD-dt);meteorCD=Math.max(0,meteorCD-dt);
+if(running){spawnClock-=dt;if(spawn>0&&spawnClock<=0){spawnEnemy();spawn--;spawnClock=.82}
+enemies.forEach(e=>{e.progress+=e.speed*dt;let p=posAt(e.progress);e.x=p.x;e.y=p.y+Math.sin(elapsed*5+e.progress)*2});
+enemies.filter(e=>e.progress>=pathLength()).forEach(e=>{lives-=e.type==='boss'?5:1;enemies=enemies.filter(x=>x!==e);if(lives<=0){lives=0;gameOver=true;running=false;showBanner('THE KEEP HAS FALLEN')}});
+towers.forEach(t=>{t.cool-=dt;let target=enemies.filter(e=>distance(t,e)<t.range).sort((a,b)=>b.progress-a.progress)[0];if(target&&t.cool<=0){shots.push({x:t.x,y:t.y-15,target,damage:t.damage*(t.branch==='Marksman'?1.35:1),type:t.type,life:2});t.cool=t.type==='Cannon'?1.05:.68}});
+let target=enemies.slice().sort((a,b)=>b.progress-a.progress)[0];if(target){let d=distance(hero,target);if(d>30){hero.x+=(target.x-hero.x)/d*85*dt;hero.y+=(target.y-hero.y)/d*85*dt}else{hero.attack-=dt;if(hero.attack<=0){hero.attack=.72;kill(target,20+(save.heroLevel-1)*8)}}}
+towers.filter(t=>t.type==='Barracks').forEach(t=>{t.guardTimer=(t.guardTimer||0)-dt;if(t.guardTimer<=0){let e=enemies.find(e=>distance(t,e)<65);if(e){t.guardTimer=.8;kill(e,14)}}});
+shots.forEach(s=>{if(!enemies.includes(s.target)){s.life=0;return}let dx=s.target.x-s.x,dy=s.target.y-s.y,d=Math.hypot(dx,dy)||1,step=330*dt;s.x+=dx/d*step;s.y+=dy/d*step;if(d<step+7){kill(s.target,s.damage);s.life=0;if(s.type==='Cannon')particles(s.x,s.y,15,'#ff943e')}});shots=shots.filter(s=>s.life>0);
+if(spawn===0&&enemies.length===0){running=false;if(wave>=missions[mission].waves){won=true;let reward=missions[mission].reward;save.medals+=reward;save.completed[mission]=true;save.unlocked=Math.max(save.unlocked,Math.min(2,mission+1));persist();showBanner('VICTORY · +'+reward+' MEDALS');updateMap()}else{gold+=25;showBanner('WAVE CLEARED · +25 GOLD')}}}
+fx.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt});fx=fx.filter(p=>p.life>0);if(elapsed>bannerEnd)$('banner').hidden=true;
+}
+function draw(){
+g.clearRect(0,0,760,460);let colors=[['#35513e','#7b8154'],['#294a4a','#577c78'],['#354754','#758a94']][mission];g.fillStyle=colors[0];g.fillRect(0,0,760,460);
+for(let i=0;i<22;i++){let x=(i*107+29)%760,y=(i*71+37)%460;g.fillStyle=colors[1];g.beginPath();g.arc(x,y,16+(i%4)*5,0,7);g.fill();g.fillStyle=colors[0];g.beginPath();g.arc(x-5,y-7,10,0,7);g.fill()}
+if(mission===1){g.fillStyle='#527d83';g.fillRect(0,30,760,40);g.fillRect(0,395,760,35)}if(mission===2){g.fillStyle='#d1dce0';for(let i=0;i<10;i++){g.beginPath();g.moveTo(i*90,0);g.lineTo(i*90+65,0);g.lineTo(i*90+20,85);g.fill()}}
+let p=route();g.lineCap='round';g.lineJoin='round';g.beginPath();p.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));g.strokeStyle='#514d3c';g.lineWidth=47;g.stroke();g.strokeStyle='#c4b18a';g.lineWidth=34;g.stroke();g.strokeStyle='#e2d2aa';g.lineWidth=2;g.setLineDash([8,12]);g.stroke();g.setLineDash([]);
+pads.forEach((p,i)=>{g.beginPath();g.arc(p[0],p[1],21,0,7);g.fillStyle=towers[i]?'#344238':'#5c8152';g.fill();g.strokeStyle=towers[i]?'#d6b765':'#b6d58a';g.lineWidth=3;g.stroke();if(!towers[i]){g.fillStyle='#f3edc5';g.font='bold 18px sans-serif';g.textAlign='center';g.fillText('+',p[0],p[1]+7)}});
+towers.forEach(t=>{if(t===selected){g.beginPath();g.arc(t.x,t.y,t.range,0,7);g.strokeStyle='#f7dc8a66';g.lineWidth=2;g.stroke()}g.fillStyle=t.type==='Archer'?'#a8784a':t.type==='Mage'?'#7657a1':t.type==='Cannon'?'#677a83':'#a18b58';g.fillRect(t.x-13,t.y-25,26,33);g.fillStyle='#e1c79a';g.beginPath();g.arc(t.x,t.y-27,12,0,7);g.fill();if(t.type==='Mage'){g.fillStyle='#cba5ff';g.beginPath();g.arc(t.x+17,t.y-42,5,0,7);g.fill()}if(t.type==='Cannon'){g.fillStyle='#34454c';g.fillRect(t.x-2,t.y-15,25,9)}g.fillStyle='#fff0c0';g.font='10px sans-serif';g.textAlign='center';g.fillText('★'.repeat(t.level),t.x,t.y-43);if(t.branch)g.fillText('✦',t.x+16,t.y-33)});
+enemies.forEach(e=>{g.fillStyle=e.type==='boss'?'#782e32':e.type==='armour'?'#78828a':e.type==='runner'?'#a48b4d':'#71834f';g.beginPath();g.arc(e.x,e.y,e.r,0,7);g.fill();if(e.type==='boss'){g.fillStyle='#e0b98d';g.beginPath();g.moveTo(e.x-15,e.y-17);g.lineTo(e.x-25,e.y-36);g.lineTo(e.x-6,e.y-26);g.moveTo(e.x+15,e.y-17);g.lineTo(e.x+25,e.y-36);g.lineTo(e.x+6,e.y-26);g.fill()}g.fillStyle='#ffe18c';g.fillRect(e.x-4,e.y-3,3,3);g.fillRect(e.x+3,e.y-3,3,3);g.fillStyle='#292e2a';g.fillRect(e.x-17,e.y-e.r-10,34,4);g.fillStyle=e.type==='boss'?'#e84c47':'#9ed16a';g.fillRect(e.x-17,e.y-e.r-10,34*Math.max(0,e.hp/e.max),4)});
+shots.forEach(s=>{g.fillStyle=s.type==='Mage'?'#d7a5ff':s.type==='Cannon'?'#ff9c49':'#ffe4a1';g.beginPath();g.arc(s.x,s.y,4,0,7);g.fill()});fx.forEach(f=>{g.globalAlpha=Math.max(0,f.life);g.fillStyle=f.col;g.beginPath();g.arc(f.x,f.y,3,0,7);g.fill();g.globalAlpha=1});
+g.fillStyle='#d7d1bd';g.fillRect(hero.x-7,hero.y-14,14,24);g.fillStyle='#b77947';g.beginPath();g.arc(hero.x,hero.y-18,8,0,7);g.fill();g.strokeStyle='#f0d8a2';g.lineWidth=4;g.beginPath();g.moveTo(hero.x+5,hero.y-8);g.lineTo(hero.x+17,hero.y-23);g.stroke();g.fillStyle='#26322e';g.fillRect(hero.x-17,hero.y-32,34,4);g.fillStyle='#e7c56e';g.fillRect(hero.x-17,hero.y-32,34*hero.hp/hero.max,4);
+g.fillStyle='#273632';g.fillRect(700,150,43,86);g.fillStyle='#b2b8a0';g.fillRect(707,139,29,22);g.fillStyle='#e2c57e';g.fillRect(716,180,13,56);
+}
+function loop(ts){let dt=Math.min(.04,(ts-last)/1000||0);last=ts;if(!paused&&!gameOver&&!won){let r=dt*speed;while(r>0){let s=Math.min(.025,r);update(s);r-=s}}draw();updateUI();requestAnimationFrame(loop)}
+document.querySelectorAll('[data-t]').forEach(b=>b.addEventListener('click',()=>{build=b.dataset.t;selected=null;updateUI()}));
+document.querySelectorAll('.mission').forEach(b=>b.addEventListener('click',()=>{let i=+b.dataset.m;if(i>save.unlocked)return;mission=i;updateMap()}));
+$('launch').addEventListener('click',()=>{$('campaign').hidden=true;resetBattle()});
+$('map').addEventListener('click',()=>{$('campaign').hidden=false;running=false;paused=true;updateMap();updateUI()});
+canvas.addEventListener('click',ev=>{let r=canvas.getBoundingClientRect(),x=(ev.clientX-r.left)*760/r.width,y=(ev.clientY-r.top)*460/r.height;let t=towers.find(t=>distance(t,{x,y})<25);if(t){selected=t;build=null;updateUI();return}let i=pads.findIndex(p=>Math.hypot(p[0]-x,p[1]-y)<28);if(i>=0&&!towers[i]&&build){if(gold<costs[build])return;gold-=costs[build];let [px,py]=pads[i];towers[i]={x:px,y:py,type:build,level:1,damage:base[build][0],range:base[build][1],cool:.2};selected=towers[i];build=null;updateUI()}else if(i>=0){selected=towers[i]||{pad:i};updateUI()}});
+$('upgrade').addEventListener('click',()=>{let t=selected;if(!t||t.pad!==undefined||t.level>=3)return;let cost=Math.round(costs[t.type]*.8);if(gold<cost)return;gold-=cost;t.level++;t.damage*=1.5;t.range+=12;updateUI()});
+$('branch').addEventListener('click',()=>{let t=selected;if(!t||t.level<2||t.branch)return;t.branch=t.type==='Archer'?'Marksman':t.type==='Mage'?'Archmage':t.type==='Cannon'?'Siege Master':'Veteran Guard';t.damage*=1.2;t.range+=15;showBanner(t.branch.toUpperCase()+' PATH UNLOCKED');updateUI()});
+$('sell').addEventListener('click',()=>{if(!selected||selected.pad!==undefined)return;let i=towers.indexOf(selected);if(i>=0){gold+=Math.round(costs[selected.type]*.55);towers[i]=null;towers=towers.filter(Boolean);selected=null;updateUI()}});
+$('start').addEventListener('click',launch);$('pause').addEventListener('click',()=>{paused=!paused;updateUI()});$('speed').addEventListener('click',()=>{speed=speed===1?1.7:1;updateUI()});
+$('retry').addEventListener('click',()=>{resetBattle();$('campaign').hidden=true});
+$('skill').addEventListener('click',()=>{if(heroCD>0||gameOver||won)return;heroCD=12;enemies.slice().sort((a,b)=>b.progress-a.progress).slice(0,4).forEach(e=>kill(e,55+(save.heroLevel-1)*8));particles(hero.x,hero.y,25,'#ffe18b');showBanner('HERO — BLADE STORM')});
+$('meteor').addEventListener('click',()=>{if(meteorCD>0||gold<60||gameOver||won)return;gold-=60;meteorCD=8;let e=enemies.slice().sort((a,b)=>b.progress-a.progress)[0];if(e){let x=e.x,y=e.y;enemies.slice().filter(q=>distance(q,{x,y})<95).forEach(q=>kill(q,110));particles(x,y,40,'#ff8d43')}updateUI()});
+$('train').addEventListener('click',()=>{let cost=save.heroLevel+1;if(save.heroLevel>=5||save.medals<cost)return;save.medals-=cost;save.heroLevel++;persist();updateMap();showBanner('HERO TRAINING COMPLETE')});
+updateMap();resetBattle();$('campaign').hidden=false;requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
